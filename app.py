@@ -954,22 +954,25 @@ def lokasyon_ekle():
 
 @app.route('/init-db')
 def init_db():
-    db.create_all()
-    # Varsayılan admin kontrolü
-    admin = Kullanici.query.filter_by(kullanici_adi='admin').first()
-    if not admin:
-        admin = Kullanici(kullanici_adi='admin', ad_soyad='Sistem Yöneticisi', rol='admin')
-        admin.set_sifre('admin123')
-        db.session.add(admin)
+    try:
+        db.create_all()
+        # Varsayılan admin kontrolü
+        admin = Kullanici.query.filter_by(kullanici_adi='admin').first()
+        if not admin:
+            admin = Kullanici(kullanici_adi='admin', ad_soyad='Sistem Yöneticisi', rol='admin')
+            admin.set_sifre('admin123')
+            db.session.add(admin)
 
-        # Varsayılan lokasyonlar
-        fabrika = Lokasyon(ad='Turşu Fabrikası', tip='fabrika', adres='Fabrika Adresi')
-        magaza1 = Lokasyon(ad='Mağaza 1', tip='magaza', adres='Mağaza 1 Adresi')
-        magaza2 = Lokasyon(ad='Mağaza 2', tip='magaza', adres='Mağaza 2 Adresi')
-        db.session.add_all([fabrika, magaza1, magaza2])
-        db.session.commit()
+            # Varsayılan lokasyonlar
+            fabrika = Lokasyon(ad='Turşu Fabrikası', tip='fabrika', adres='Fabrika Adresi')
+            magaza1 = Lokasyon(ad='Mağaza 1', tip='magaza', adres='Mağaza 1 Adresi')
+            magaza2 = Lokasyon(ad='Mağaza 2', tip='magaza', adres='Mağaza 2 Adresi')
+            db.session.add_all([fabrika, magaza1, magaza2])
+            db.session.commit()
 
-    return jsonify({'status': 'ok', 'message': 'Veritabanı oluşturuldu.'})
+        return jsonify({'status': 'ok', 'message': 'Veritabanı oluşturuldu.'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e), 'db_url': app.config['SQLALCHEMY_DATABASE_URI'][:30] + '...'}), 500
 
 # ===================== RUN =====================
 
