@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Üretim Emirleri{% endblock %}
+{% block page_title %}<strong>Üretim Yönetimi</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('uretim_yeni') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yeni Üretim Emri</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Lot No</th><th>Ürün</th><th>Lokasyon</th><th class="text-center">Hedef</th><th class="text-center">Üretilen</th><th>Durum</th><th>Tarih</th><th>SKT</th><th>İşlem</th></tr>
+            </thead>
+            <tbody>
+            {% for e in emirler %}
+            <tr>
+                <td><code>{{ e.lot_no }}</code></td>
+                <td><strong>{{ e.urun.ad }}</strong></td>
+                <td>{{ e.lokasyon.ad }}</td>
+                <td class="text-center">{{ e.hedef_miktar }}</td>
+                <td class="text-center">{{ e.uretilen_miktar }}</td>
+                <td>
+                    {% if e.durum == 'beklemede' %}<span class="badge bg-secondary">Beklemede</span>
+                    {% elif e.durum == 'uretimde' %}<span class="badge bg-primary">Üretimde</span>
+                    {% elif e.durum == 'tamamlandi' %}<span class="badge bg-success">Tamamlandı</span>
+                    {% elif e.durum == 'iptal' %}<span class="badge bg-danger">İptal</span>{% endif %}
+                </td>
+                <td>{{ e.uretim_tarihi.strftime('%d/%m/%Y') if e.uretim_tarihi else '-' }}</td>
+                <td>{{ e.skt.strftime('%d/%m/%Y') if e.skt else '-' }}</td>
+                <td><a href="{{ url_for('uretim_detay', id=e.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

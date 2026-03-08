@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Ürünler{% endblock %}
+{% block page_title %}<strong>Ürün Yönetimi</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('urun_ekle') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yeni Ürün</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Ad</th><th>Barkod</th><th>Kategori</th><th>Ambalaj</th><th class="text-end">Perakende</th><th class="text-end">Toptan</th><th>Reçete</th><th>İşlem</th></tr>
+            </thead>
+            <tbody>
+            {% for u in urunler %}
+            {% set pf = u.fiyatlar.filter_by(fiyat_tipi='perakende').first() %}
+            {% set tf = u.fiyatlar.filter_by(fiyat_tipi='toptan').first() %}
+            <tr>
+                <td><strong>{{ u.ad }}</strong></td>
+                <td><code>{{ u.barkod or '-' }}</code></td>
+                <td><span class="badge bg-success">{{ u.kategori or '-' }}</span></td>
+                <td>{{ u.ambalaj_tipi or '-' }}</td>
+                <td class="text-end">{{ '₺{:,.2f}'.format(pf.fiyat) if pf else '-' }}</td>
+                <td class="text-end">{{ '₺{:,.2f}'.format(tf.fiyat) if tf else '-' }}</td>
+                <td>
+                    {% if u.recete %}
+                    <span class="badge bg-info">Tanımlı</span>
+                    {% else %}
+                    <span class="badge bg-warning">Yok</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('urun_duzenle', id=u.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                    <a href="{{ url_for('recete_yonet', urun_id=u.id) }}" class="btn btn-sm btn-outline-info" title="Reçete"><i class="bi bi-journal-text"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

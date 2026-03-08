@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Transferler{% endblock %}
+{% block page_title %}<strong>Stok Transferleri</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('stok_transfer') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Yeni Transfer</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Transfer No</th><th>Kaynak</th><th>Hedef</th><th>Tarih</th><th>Kalem</th><th>Durum</th><th>İşlem</th></tr>
+            </thead>
+            <tbody>
+            {% for t in transferler %}
+            <tr>
+                <td><code>{{ t.transfer_no }}</code></td>
+                <td>{{ t.kaynak.ad }}</td>
+                <td>{{ t.hedef.ad }}</td>
+                <td>{{ t.tarih.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ t.kalemler|length }} ürün</td>
+                <td>
+                    {% if t.durum == 'hazirlaniyor' %}<span class="badge bg-secondary">Hazırlanıyor</span>
+                    {% elif t.durum == 'yolda' %}<span class="badge bg-primary">Yolda</span>
+                    {% elif t.durum == 'teslim_edildi' %}<span class="badge bg-success">Teslim Edildi</span>{% endif %}
+                </td>
+                <td>
+                    {% if t.durum == 'hazirlaniyor' %}
+                    <form method="POST" action="{{ url_for('stok_transfer_onayla', id=t.id) }}" class="d-inline">
+                        <button class="btn btn-sm btn-success"><i class="bi bi-check"></i> Onayla</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

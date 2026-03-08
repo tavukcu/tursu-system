@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% block title %}POS Satış{% endblock %}
+{% block page_title %}<strong>Satış Ekranı</strong>{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pos-container { display: grid; grid-template-columns: 1fr 400px; gap: 15px; height: calc(100vh - 160px); }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; max-height: calc(100vh - 260px); overflow-y: auto; }
+    .product-card { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .product-card:hover { border-color: #2d5016; transform: scale(1.03); }
+    .cart-items { max-height: calc(100vh - 460px); overflow-y: auto; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
+    .cart-total { font-size: 1.5rem; font-weight: bold; color: #2d5016; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pos-container">
+    <!-- Sol: Ürünler -->
+    <div>
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+            <input type="text" id="barkodInput" class="form-control form-control-lg" placeholder="Barkod okutun veya yazın..." autofocus>
+        </div>
+
+        <ul class="nav nav-pills mb-3">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="filtrele('')">Tümü</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="filtrele('tursu')">Turşu</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="filtrele('konserve')">Konserve</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="filtrele('sos')">Sos</a></li>
+        </ul>
+
+        <div class="product-grid" id="productGrid">
+            {% for u in urunler %}
+            <div class="card product-card" data-kategori="{{ u.kategori }}"
+                 onclick="sepeteEkle({{ u.id }}, '{{ u.ad }}', {{ urun_fiyatlar.get(u.id, 0) }}, {{ u.kdv_orani }})">
+                <div class="card-body text-center p-2">
+                    <i class="bi bi-box-seam fs-2 text-success"></i>
+                    <div class="small fw-bold mt-1">{{ u.ad }}</div>
+                    <div class="text-muted small">{{ u.ambalaj_tipi or '' }}</div>
+                    <div class="fw-bold text-success">₺{{ '{:,.2f}'.format(urun_fiyatlar.get(u.id, 0)) }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sağ: Sepet -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-success text-white">
+            <strong><i class="bi bi-cart3"></i> Sepet</strong>
+        </div>
+        <div class="card-body p-0">
+            <div class="cart-items" id="cartItems">
+                <!-- Sepet kalemleri buraya -->
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Ara Toplam:</span>
+                <span id="araToplam">₺0,00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <div class="input-group input-group-sm" style="width:200px">
+                    <span class="input-group-text">İskonto ₺</span>
+                    <input type="number" id="iskonto" class="form-control" value="0" step="0.01" onchange="hesaplaGenel()">
+                </div>
+                <span id="iskontoTutar">-₺0,00</span>
+            </div>
+            <div class="d-flex justify-content-between cart-total mb-3">
+                <span>TOPLAM:</span>
+                <span id="genelToplam">₺0,00</span>
+            </div>
+
+            <div class="mb-2">
+                <select id="odemeTipi" class="form-select form-select-sm">
+                    <option value="nakit">Nakit</option>
+                    <option value="kart">Kredi Kartı</option>
+                    <option value="havale">Havale/EFT</option>
+                    <option value="veresiye">Veresiye</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <select id="musteriSelect" class="form-select form-select-sm">
+                    <option value="">Müşteri seçin (opsiyonel)</option>
+                    {% for m in musteriler %}
+                    <option value="{{ m.id }}">{{ m.ad_soyad }} {% if m.firma_adi %}({{ m.firma_adi }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-success btn-lg" onclick="satisKaydet()">
+                    <i class="bi bi-check-circle"></i> SATIŞ TAMAMLA
+                </button>
+                <button class="btn btn-outline-danger btn-sm" onclick="sepetTemizle()">
+                    <i class="bi bi-trash"></i> Sepeti Temizle
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let sepet = [];
+const lokasyonId = {{ lokasyon_id or 'null' }};
+
+// Barkod okutma
+document.getElementById('barkodInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const barkod = this.value.trim();
+        if (barkod) {
+            fetch('/api/barkod/' + barkod)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) { alert('Ürün bulunamadı!'); }
+                    else { sepeteEkle(data.id, data.ad, data.fiyat, data.kdv_orani); }
+                });
+        }
+        this.value = '';
+    }
+});
+
+function sepeteEkle(id, ad, fiyat, kdv) {
+    const mevcut = sepet.find(s => s.urun_id === id);
+    if (mevcut) {
+        mevcut.miktar++;
+    } else {
+        sepet.push({ urun_id: id, ad: ad, birim_fiyat: fiyat, kdv_orani: kdv, miktar: 1 });
+    }
+    sepetGuncelle();
+}
+
+function sepetGuncelle() {
+    const container = document.getElementById('cartItems');
+    container.innerHTML = '';
+    sepet.forEach((item, idx) => {
+        const toplam = item.miktar * item.birim_fiyat;
+        container.innerHTML += `
+            <div class="cart-item">
+                <div>
+                    <div class="fw-bold small">${item.ad}</div>
+                    <div class="text-muted small">₺${item.birim_fiyat.toFixed(2)} x
+                        <input type="number" value="${item.miktar}" min="1" style="width:50px" class="form-control form-control-sm d-inline"
+                            onchange="miktarDegistir(${idx}, this.value)">
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <strong>₺${toplam.toFixed(2)}</strong>
+                    <button class="btn btn-sm btn-outline-danger" onclick="sepettenCikar(${idx})"><i class="bi bi-x"></i></button>
+                </div>
+            </div>`;
+    });
+    hesaplaGenel();
+}
+
+function miktarDegistir(idx, val) {
+    sepet[idx].miktar = parseInt(val) || 1;
+    sepetGuncelle();
+}
+
+function sepettenCikar(idx) {
+    sepet.splice(idx, 1);
+    sepetGuncelle();
+}
+
+function sepetTemizle() {
+    sepet = [];
+    sepetGuncelle();
+}
+
+function hesaplaGenel() {
+    const araToplam = sepet.reduce((t, i) => t + i.miktar * i.birim_fiyat, 0);
+    const iskonto = parseFloat(document.getElementById('iskonto').value) || 0;
+    const genel = araToplam - iskonto;
+
+    document.getElementById('araToplam').textContent = '₺' + araToplam.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+    document.getElementById('iskontoTutar').textContent = '-₺' + iskonto.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+    document.getElementById('genelToplam').textContent = '₺' + genel.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+}
+
+function filtrele(kat) {
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.style.display = (!kat || card.dataset.kategori === kat) ? '' : 'none';
+    });
+    document.querySelectorAll('.nav-pills .nav-link').forEach(a => a.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function satisKaydet() {
+    if (sepet.length === 0) { alert('Sepet boş!'); return; }
+
+    const data = {
+        lokasyon_id: lokasyonId,
+        musteri_id: document.getElementById('musteriSelect').value || null,
+        odeme_tipi: document.getElementById('odemeTipi').value,
+        iskonto: parseFloat(document.getElementById('iskonto').value) || 0,
+        kalemler: sepet.map(s => ({
+            urun_id: s.urun_id, miktar: s.miktar,
+            birim_fiyat: s.birim_fiyat, kdv_orani: s.kdv_orani
+        }))
+    };
+
+    fetch('/api/satis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            alert(`Satış tamamlandı!\nFiş No: ${result.fis_no}\nToplam: ₺${result.toplam.toFixed(2)}`);
+            sepetTemizle();
+        } else {
+            alert('Hata: ' + (result.error || 'Bilinmeyen hata'));
+        }
+    });
+}
+
+// Auto focus barkod
+document.addEventListener('keydown', function(e) {
+    if (!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) {
+        document.getElementById('barkodInput').focus();
+    }
+});
+</script>
+{% endblock %}

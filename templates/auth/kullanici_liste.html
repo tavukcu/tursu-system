@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Kullanıcılar{% endblock %}
+{% block page_title %}<strong>Kullanıcı Yönetimi</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('kullanici_ekle') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yeni Kullanıcı</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Kullanıcı Adı</th><th>Ad Soyad</th><th>Rol</th><th>Lokasyon</th><th>Durum</th></tr>
+            </thead>
+            <tbody>
+            {% for k in kullanicilar %}
+            <tr>
+                <td><code>{{ k.kullanici_adi }}</code></td>
+                <td><strong>{{ k.ad_soyad }}</strong></td>
+                <td><span class="badge bg-{{ 'danger' if k.rol == 'admin' else 'primary' if k.rol == 'mudur' else 'secondary' }}">{{ k.rol }}</span></td>
+                <td>{{ k.lokasyon.ad if k.lokasyon else 'Tüm Lokasyonlar' }}</td>
+                <td><span class="badge bg-{{ 'success' if k.aktif else 'danger' }}">{{ 'Aktif' if k.aktif else 'Pasif' }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Ana Panel{% endblock %}
+{% block page_title %}<strong>Ana Panel</strong>{% endblock %}
+
+{% block content %}
+<!-- Özet Kartlar -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="mb-1">Bugün Ciro</h6>
+                        <h3 class="mb-0">₺{{ "{:,.2f}".format(bugun_ciro) }}</h3>
+                    </div>
+                    <i class="bi bi-cash-stack fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="mb-1">Bugün Satış</h6>
+                        <h3 class="mb-0">{{ bugun_satis_adet }} Adet</h3>
+                    </div>
+                    <i class="bi bi-cart-check fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="mb-1">Aktif Üretim</h6>
+                        <h3 class="mb-0">{{ aktif_uretimler }}</h3>
+                    </div>
+                    <i class="bi bi-gear-wide-connected fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="mb-1">Kritik Stok</h6>
+                        <h3 class="mb-0">{{ kritik_hammadde|length }}</h3>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <!-- Satış Grafiği -->
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Son 7 Gün Satış</strong></div>
+            <div class="card-body">
+                <canvas id="satisGrafik" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lokasyon Bazlı -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Bugün Lokasyon Bazlı</strong></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Lokasyon</th><th class="text-end">Ciro</th><th class="text-end">Adet</th></tr></thead>
+                    <tbody>
+                    {% for row in lokasyon_satirlar %}
+                    <tr>
+                        <td><i class="bi bi-{{ 'building' if row.lokasyon.tip == 'fabrika' else 'shop' }}"></i> {{ row.lokasyon.ad }}</td>
+                        <td class="text-end">₺{{ "{:,.2f}".format(row.ciro) }}</td>
+                        <td class="text-end">{{ row.adet }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Kritik Hammadde Stok -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong><i class="bi bi-exclamation-triangle text-danger"></i> Kritik Hammadde Stok</strong></div>
+            <div class="card-body p-0">
+                {% if kritik_hammadde %}
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Hammadde</th><th class="text-end">Mevcut</th><th class="text-end">Minimum</th></tr></thead>
+                    <tbody>
+                    {% for h, s in kritik_hammadde %}
+                    <tr class="table-danger">
+                        <td>{{ h.ad }}</td>
+                        <td class="text-end">{{ s.miktar }} {{ h.birim }}</td>
+                        <td class="text-end">{{ h.min_stok }} {{ h.birim }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center text-muted py-3 mb-0">Kritik stok yok</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- SKT Yaklaşan -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong><i class="bi bi-clock text-warning"></i> SKT Yaklaşan Ürünler (30 gün)</strong></div>
+            <div class="card-body p-0">
+                {% if skt_yaklasan %}
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Ürün</th><th>Lot No</th><th>Lokasyon</th><th class="text-end">SKT</th><th class="text-end">Miktar</th></tr></thead>
+                    <tbody>
+                    {% for s in skt_yaklasan %}
+                    <tr class="table-warning">
+                        <td>{{ s.urun.ad }}</td>
+                        <td><small>{{ s.lot_no }}</small></td>
+                        <td>{{ s.lokasyon.ad }}</td>
+                        <td class="text-end">{{ s.skt.strftime('%d/%m/%Y') if s.skt else '-' }}</td>
+                        <td class="text-end">{{ s.miktar }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center text-muted py-3 mb-0">SKT yaklaşan ürün yok</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ctx = document.getElementById('satisGrafik').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ satis_grafik|map(attribute='gun')|list|tojson }},
+        datasets: [{
+            label: 'Günlük Ciro (₺)',
+            data: {{ satis_grafik|map(attribute='ciro')|list|tojson }},
+            backgroundColor: 'rgba(45, 80, 22, 0.7)',
+            borderColor: '#2d5016',
+            borderWidth: 1,
+            borderRadius: 5
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '₺' + v.toLocaleString() } } },
+        plugins: { legend: { display: false } }
+    }
+});
+</script>
+{% endblock %}

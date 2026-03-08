@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Ürün Düzenle{% endblock %}
+{% block page_title %}<strong>Ürün Düzenle: {{ urun.ad }}</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Ürün Adı *</label>
+                <input type="text" name="ad" class="form-control" value="{{ urun.ad }}" required>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Barkod</label>
+                    <input type="text" name="barkod" class="form-control" value="{{ urun.barkod or '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="kategori" class="form-select">
+                        {% for k in ['tursu','konserve','sos','diger'] %}
+                        <option value="{{ k }}" {{ 'selected' if urun.kategori == k }}>{{ k|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Birim</label>
+                    <select name="birim" class="form-select">
+                        <option value="adet" {{ 'selected' if urun.birim == 'adet' }}>Adet</option>
+                        <option value="kg" {{ 'selected' if urun.birim == 'kg' }}>Kg</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Ambalaj Tipi</label>
+                    <select name="ambalaj_tipi" class="form-select">
+                        {% for a in ['kavanoz_370ml','kavanoz_720ml','kavanoz_1L','kova_3kg','kova_5kg','kova_10kg','bidon_18L'] %}
+                        <option value="{{ a }}" {{ 'selected' if urun.ambalaj_tipi == a }}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Raf Ömrü (gün)</label>
+                    <input type="number" name="raf_omru_gun" class="form-control" value="{{ urun.raf_omru_gun }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">KDV Oranı (%)</label>
+                    <input type="number" name="kdv_orani" class="form-control" value="{{ urun.kdv_orani }}" step="0.01">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Perakende Fiyat (₺)</label>
+                    <input type="number" name="perakende_fiyat" class="form-control" step="0.01" value="{{ perakende_fiyat }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Toptan Fiyat (₺)</label>
+                    <input type="number" name="toptan_fiyat" class="form-control" step="0.01" value="{{ toptan_fiyat }}">
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Güncelle</button>
+                <a href="{{ url_for('urun_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

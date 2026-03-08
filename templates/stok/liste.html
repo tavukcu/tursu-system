@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Stok{% endblock %}
+{% block page_title %}<strong>Ürün Stok Durumu</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('stok_transfer') }}" class="btn btn-primary"><i class="bi bi-arrow-left-right"></i> Yeni Transfer</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Ürün</th><th>Lokasyon</th><th>Lot No</th><th class="text-end">Miktar</th><th>SKT</th></tr>
+            </thead>
+            <tbody>
+            {% for u, s, l in stoklar %}
+            <tr>
+                <td><strong>{{ u.ad }}</strong></td>
+                <td><i class="bi bi-{{ 'building' if l.tip == 'fabrika' else 'shop' }}"></i> {{ l.ad }}</td>
+                <td><code>{{ s.lot_no or '-' }}</code></td>
+                <td class="text-end fw-bold">{{ s.miktar }}</td>
+                <td>{{ s.skt.strftime('%d/%m/%Y') if s.skt else '-' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

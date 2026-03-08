@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Lokasyonlar{% endblock %}
+{% block page_title %}<strong>Lokasyon Yönetimi</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('lokasyon_ekle') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yeni Lokasyon</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Ad</th><th>Tip</th><th>Adres</th><th>Telefon</th><th>Durum</th></tr>
+            </thead>
+            <tbody>
+            {% for l in lokasyonlar %}
+            <tr>
+                <td><strong><i class="bi bi-{{ 'building' if l.tip == 'fabrika' else 'shop' }}"></i> {{ l.ad }}</strong></td>
+                <td><span class="badge bg-{{ 'primary' if l.tip == 'fabrika' else 'success' }}">{{ l.tip }}</span></td>
+                <td>{{ l.adres or '-' }}</td>
+                <td>{{ l.telefon or '-' }}</td>
+                <td><span class="badge bg-{{ 'success' if l.aktif else 'danger' }}">{{ 'Aktif' if l.aktif else 'Pasif' }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

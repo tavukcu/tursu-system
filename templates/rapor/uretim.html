@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Üretim Raporu{% endblock %}
+{% block page_title %}<strong>Üretim Raporu</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Başlangıç</label>
+                <input type="date" name="baslangic" class="form-control" value="{{ baslangic }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Bitiş</label>
+                <input type="date" name="bitis" class="form-control" value="{{ bitis }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrele</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Lot No</th><th>Ürün</th><th>Hedef</th><th>Üretilen</th><th>Verimlilik</th><th>Durum</th><th>Tarih</th></tr>
+            </thead>
+            <tbody>
+            {% for e in emirler %}
+            <tr>
+                <td><code>{{ e.lot_no }}</code></td>
+                <td>{{ e.urun.ad }}</td>
+                <td class="text-center">{{ e.hedef_miktar }}</td>
+                <td class="text-center">{{ e.uretilen_miktar }}</td>
+                <td class="text-center">
+                    {% if e.hedef_miktar > 0 %}
+                    {% set verim = (e.uretilen_miktar / e.hedef_miktar * 100) %}
+                    <span class="badge bg-{{ 'success' if verim >= 90 else 'warning' if verim >= 70 else 'danger' }}">
+                        %{{ '{:.0f}'.format(verim) }}
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if e.durum == 'tamamlandi' %}<span class="badge bg-success">Tamamlandı</span>
+                    {% elif e.durum == 'uretimde' %}<span class="badge bg-primary">Üretimde</span>
+                    {% else %}<span class="badge bg-secondary">{{ e.durum }}</span>{% endif %}
+                </td>
+                <td>{{ e.uretim_tarihi.strftime('%d/%m/%Y') if e.uretim_tarihi else '-' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

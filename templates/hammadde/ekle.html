@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Hammadde Ekle{% endblock %}
+{% block page_title %}<strong>Yeni Hammadde Ekle</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:600px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Hammadde Adı *</label>
+                <input type="text" name="ad" class="form-control" required>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Birim *</label>
+                    <select name="birim" class="form-select">
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="adet">Adet</option>
+                        <option value="litre">Litre</option>
+                        <option value="ton">Ton</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="kategori" class="form-select">
+                        <option value="sebze">Sebze</option>
+                        <option value="baharat">Baharat</option>
+                        <option value="ambalaj">Ambalaj</option>
+                        <option value="diger">Diğer</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Minimum Stok Seviyesi</label>
+                <input type="number" name="min_stok" class="form-control" step="0.01" value="0">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Kaydet</button>
+                <a href="{{ url_for('hammadde_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

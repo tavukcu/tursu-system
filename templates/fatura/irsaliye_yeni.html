@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Yeni İrsaliye{% endblock %}
+{% block page_title %}<strong>Yeni İrsaliye Oluştur</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:800px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">İrsaliye Tipi *</label>
+                    <select name="irsaliye_tipi" class="form-select" required>
+                        <option value="sevk">Sevk İrsaliyesi</option>
+                        <option value="iade">İade İrsaliyesi</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Müşteri</label>
+                    <select name="musteri_id" class="form-select">
+                        <option value="">Seçiniz...</option>
+                        {% for m in musteriler %}<option value="{{ m.id }}">{{ m.ad_soyad }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Kaynak Lokasyon *</label>
+                    <select name="kaynak_id" class="form-select" required>
+                        {% for l in lokasyonlar %}<option value="{{ l.id }}">{{ l.ad }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Hedef Lokasyon</label>
+                    <select name="hedef_id" class="form-select">
+                        <option value="">Dış müşteri</option>
+                        {% for l in lokasyonlar %}<option value="{{ l.id }}">{{ l.ad }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Araç Plakası</label>
+                    <input type="text" name="plaka" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Sürücü</label>
+                    <input type="text" name="surucu" class="form-control">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Açıklama</label>
+                <input type="text" name="aciklama" class="form-control">
+            </div>
+
+            <h6>İrsaliye Kalemleri</h6>
+            <table class="table" id="irsaliyeTable">
+                <thead><tr><th>Ürün</th><th>Miktar</th><th>Lot No</th><th></th></tr></thead>
+                <tbody>
+                <tr>
+                    <td><select name="urun_id[]" class="form-select" required>
+                        <option value="">Seçiniz...</option>
+                        {% for u in urunler %}<option value="{{ u.id }}">{{ u.ad }}</option>{% endfor %}
+                    </select></td>
+                    <td><input type="number" name="miktar[]" class="form-control" step="1" required></td>
+                    <td><input type="text" name="lot_no[]" class="form-control"></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-primary mb-3" onclick="satirEkle()"><i class="bi bi-plus"></i> Satır Ekle</button>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> İrsaliye Oluştur</button>
+                <a href="{{ url_for('irsaliye_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function satirEkle() {
+    const tbody = document.querySelector('#irsaliyeTable tbody');
+    const row = tbody.querySelector('tr').cloneNode(true);
+    row.querySelectorAll('input').forEach(i => i.value = '');
+    row.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    tbody.appendChild(row);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Kullanıcı Ekle{% endblock %}
+{% block page_title %}<strong>Yeni Kullanıcı Ekle</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:500px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Kullanıcı Adı *</label>
+                <input type="text" name="kullanici_adi" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ad Soyad *</label>
+                <input type="text" name="ad_soyad" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Şifre *</label>
+                <input type="password" name="sifre" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Rol *</label>
+                <select name="rol" class="form-select" required>
+                    <option value="kasiyer">Kasiyer</option>
+                    <option value="mudur">Müdür</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Lokasyon</label>
+                <select name="lokasyon_id" class="form-select">
+                    <option value="">Tüm Lokasyonlar</option>
+                    {% for l in lokasyonlar %}<option value="{{ l.id }}">{{ l.ad }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Kaydet</button>
+                <a href="{{ url_for('kullanici_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

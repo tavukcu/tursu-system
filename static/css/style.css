@@ -1,0 +1,87 @@
+/* ===== SIDEBAR ===== */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    transition: all 0.3s;
+    flex-shrink: 0;
+}
+.sidebar.collapsed {
+    width: 0;
+    overflow: hidden;
+}
+.sidebar .nav-link {
+    padding: 8px 15px;
+    border-radius: 6px;
+    margin: 1px 0;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: rgba(255,255,255,0.15);
+}
+.sidebar .nav-link i {
+    width: 24px;
+    margin-right: 8px;
+}
+
+/* ===== PAGE CONTENT ===== */
+.page-content {
+    min-height: 100vh;
+    background: #f5f6fa;
+}
+
+/* ===== CARDS ===== */
+.card {
+    border-radius: 10px;
+}
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* ===== TABLE ===== */
+.table th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.table td {
+    vertical-align: middle;
+}
+
+/* ===== BADGES ===== */
+.badge {
+    font-weight: 500;
+}
+
+/* ===== LOGIN ===== */
+.login-card {
+    animation: fadeInUp 0.5s ease;
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        z-index: 1000;
+        width: 0;
+        overflow: hidden;
+    }
+    .sidebar.show {
+        width: 250px;
+    }
+    .pos-container {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ===== PRINT ===== */
+@media print {
+    .sidebar, .navbar, .btn { display: none !important; }
+    .page-content { margin: 0; padding: 0; }
+}

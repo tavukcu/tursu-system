@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Yeni Fatura{% endblock %}
+{% block page_title %}<strong>Yeni Fatura Oluştur</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label">Fatura Tipi *</label>
+                    <select name="fatura_tipi" id="faturaTipi" class="form-select" required onchange="tipDegisti()">
+                        <option value="satis">Satış Faturası</option>
+                        <option value="alis">Alış Faturası</option>
+                    </select>
+                </div>
+                <div class="col-md-3" id="musteriDiv">
+                    <label class="form-label">Müşteri</label>
+                    <select name="musteri_id" class="form-select">
+                        <option value="">Seçiniz...</option>
+                        {% for m in musteriler %}<option value="{{ m.id }}">{{ m.ad_soyad }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3" id="tedarikciDiv" style="display:none">
+                    <label class="form-label">Tedarikçi</label>
+                    <select name="tedarikci_id" class="form-select">
+                        <option value="">Seçiniz...</option>
+                        {% for t in tedarikciler %}<option value="{{ t.id }}">{{ t.ad_soyad }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Lokasyon</label>
+                    <select name="lokasyon_id" class="form-select">
+                        {% for l in lokasyonlar %}<option value="{{ l.id }}">{{ l.ad }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Vade Tarihi</label>
+                    <input type="date" name="vade_tarihi" class="form-control">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Açıklama</label>
+                <input type="text" name="aciklama" class="form-control">
+            </div>
+
+            <h6>Fatura Kalemleri</h6>
+            <table class="table" id="faturaTable">
+                <thead><tr><th>Ürün</th><th>Miktar</th><th>Birim Fiyat (₺)</th><th>KDV %</th><th>Toplam</th><th></th></tr></thead>
+                <tbody>
+                <tr>
+                    <td><select name="urun_id[]" class="form-select">
+                        <option value="">Seçiniz...</option>
+                        {% for u in urunler %}<option value="{{ u.id }}">{{ u.ad }}</option>{% endfor %}
+                    </select></td>
+                    <td><input type="number" name="miktar[]" class="form-control" step="1" onchange="satirHesapla(this)"></td>
+                    <td><input type="number" name="birim_fiyat[]" class="form-control" step="0.01" onchange="satirHesapla(this)"></td>
+                    <td><input type="number" name="kdv_orani[]" class="form-control" value="10" step="1" onchange="satirHesapla(this)"></td>
+                    <td><input type="text" class="form-control bg-light satir-toplam" readonly></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+                </tr>
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-primary mb-3" onclick="satirEkle()"><i class="bi bi-plus"></i> Satır Ekle</button>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Fatura Oluştur</button>
+                <a href="{{ url_for('fatura_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function tipDegisti() {
+    const tip = document.getElementById('faturaTipi').value;
+    document.getElementById('musteriDiv').style.display = tip === 'satis' ? '' : 'none';
+    document.getElementById('tedarikciDiv').style.display = tip === 'alis' ? '' : 'none';
+}
+function satirEkle() {
+    const tbody = document.querySelector('#faturaTable tbody');
+    const row = tbody.querySelector('tr').cloneNode(true);
+    row.querySelectorAll('input:not([name="kdv_orani[]"])').forEach(i => i.value = '');
+    row.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    tbody.appendChild(row);
+}
+function satirHesapla(el) {
+    const tr = el.closest('tr');
+    const m = parseFloat(tr.querySelector('[name="miktar[]"]').value) || 0;
+    const f = parseFloat(tr.querySelector('[name="birim_fiyat[]"]').value) || 0;
+    const k = parseFloat(tr.querySelector('[name="kdv_orani[]"]').value) || 0;
+    const toplam = m * f * (1 + k/100);
+    tr.querySelector('.satir-toplam').value = '₺' + toplam.toFixed(2);
+}
+</script>
+{% endblock %}

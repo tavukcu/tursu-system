@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Hammadde Stok{% endblock %}
+{% block page_title %}<strong>Hammadde Stok Durumu</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Hammadde</th><th>Lokasyon</th><th>Kategori</th><th class="text-end">Miktar</th><th class="text-end">Min. Stok</th><th>Durum</th></tr>
+            </thead>
+            <tbody>
+            {% for h, s, l in stoklar %}
+            <tr class="{{ 'table-danger' if s.miktar <= h.min_stok and h.min_stok > 0 else '' }}">
+                <td><strong>{{ h.ad }}</strong></td>
+                <td>{{ l.ad }}</td>
+                <td><span class="badge bg-secondary">{{ h.kategori or '-' }}</span></td>
+                <td class="text-end">{{ s.miktar }} {{ h.birim }}</td>
+                <td class="text-end">{{ h.min_stok }} {{ h.birim }}</td>
+                <td>
+                    {% if h.min_stok > 0 and s.miktar <= h.min_stok %}
+                    <span class="badge bg-danger">Kritik!</span>
+                    {% else %}
+                    <span class="badge bg-success">Normal</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Satış Raporu{% endblock %}
+{% block page_title %}<strong>Satış Raporu</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Başlangıç</label>
+                <input type="date" name="baslangic" class="form-control" value="{{ baslangic }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Bitiş</label>
+                <input type="date" name="bitis" class="form-control" value="{{ bitis }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Lokasyon</label>
+                <select name="lokasyon_id" class="form-select">
+                    <option value="">Tümü</option>
+                    {% for l in lokasyonlar %}<option value="{{ l.id }}">{{ l.ad }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrele</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body text-center">
+                <h6>Toplam Ciro</h6>
+                <h3>₺{{ '{:,.2f}'.format(toplam_ciro) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-info text-white">
+            <div class="card-body text-center">
+                <h6>KDV Toplam</h6>
+                <h3>₺{{ '{:,.2f}'.format(toplam_kdv) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body text-center">
+                <h6>Satış Adedi</h6>
+                <h3>{{ satislar|length }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Fiş No</th><th>Tarih</th><th>Lokasyon</th><th>Ödeme</th><th class="text-end">Tutar</th></tr>
+            </thead>
+            <tbody>
+            {% for s in satislar %}
+            <tr>
+                <td><code>{{ s.fis_no }}</code></td>
+                <td>{{ s.tarih.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ s.lokasyon.ad }}</td>
+                <td><span class="badge bg-secondary">{{ s.odeme_tipi }}</span></td>
+                <td class="text-end fw-bold">₺{{ '{:,.2f}'.format(s.net_tutar) }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

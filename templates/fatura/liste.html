@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Faturalar{% endblock %}
+{% block page_title %}<strong>Faturalar</strong>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <a href="{{ url_for('fatura_yeni') }}" class="btn btn-success"><i class="bi bi-plus-lg"></i> Yeni Fatura</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Fatura No</th><th>Tip</th><th>Müşteri/Tedarikçi</th><th>Tarih</th><th class="text-end">Tutar</th><th>Durum</th><th>İşlem</th></tr>
+            </thead>
+            <tbody>
+            {% for f in faturalar %}
+            <tr>
+                <td><code>{{ f.fatura_no }}</code></td>
+                <td><span class="badge bg-{{ 'success' if f.fatura_tipi == 'satis' else 'primary' }}">{{ 'Satış' if f.fatura_tipi == 'satis' else 'Alış' }}</span></td>
+                <td>{{ f.musteri.ad_soyad if f.musteri else (f.tedarikci.ad_soyad if f.tedarikci else '-') }}</td>
+                <td>{{ f.tarih.strftime('%d/%m/%Y') }}</td>
+                <td class="text-end fw-bold">₺{{ '{:,.2f}'.format(f.toplam_tutar) }}</td>
+                <td>
+                    {% if f.durum == 'taslak' %}<span class="badge bg-secondary">Taslak</span>
+                    {% elif f.durum == 'onaylandi' %}<span class="badge bg-success">Onaylandı</span>
+                    {% elif f.durum == 'iptal' %}<span class="badge bg-danger">İptal</span>{% endif %}
+                </td>
+                <td>
+                    {% if f.durum == 'taslak' %}
+                    <form method="POST" action="{{ url_for('fatura_onayla', id=f.id) }}" class="d-inline">
+                        <button class="btn btn-sm btn-success"><i class="bi bi-check"></i></button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

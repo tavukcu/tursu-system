@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Yeni Üretim Emri{% endblock %}
+{% block page_title %}<strong>Yeni Üretim Emri</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:600px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Ürün *</label>
+                <select name="urun_id" class="form-select" required id="urunSelect">
+                    <option value="">Seçiniz...</option>
+                    {% for u in urunler %}
+                    <option value="{{ u.id }}" data-recete="{{ 'var' if u.recete else 'yok' }}">{{ u.ad }} ({{ u.ambalaj_tipi or '' }})</option>
+                    {% endfor %}
+                </select>
+                <div id="receteUyari" class="text-danger small mt-1" style="display:none">
+                    <i class="bi bi-exclamation-triangle"></i> Bu ürün için reçete tanımlı değil!
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Lokasyon *</label>
+                    <select name="lokasyon_id" class="form-select" required>
+                        {% for l in lokasyonlar %}
+                        <option value="{{ l.id }}">{{ l.ad }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Hedef Miktar *</label>
+                    <input type="number" name="hedef_miktar" class="form-control" step="1" min="1" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Açıklama</label>
+                <textarea name="aciklama" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Üretim Emri Oluştur</button>
+                <a href="{{ url_for('uretim_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('urunSelect').addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    document.getElementById('receteUyari').style.display = opt.dataset.recete === 'yok' ? 'block' : 'none';
+});
+</script>
+{% endblock %}

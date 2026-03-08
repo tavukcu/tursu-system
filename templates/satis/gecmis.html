@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Satış Geçmişi{% endblock %}
+{% block page_title %}<strong>Satış Geçmişi</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Fiş No</th><th>Tarih</th><th>Lokasyon</th><th>Kasiyer</th><th>Müşteri</th><th>Ödeme</th><th class="text-end">Tutar</th><th>Durum</th></tr>
+            </thead>
+            <tbody>
+            {% for s in satislar %}
+            <tr class="{{ 'table-danger' if s.iptal }}">
+                <td><code>{{ s.fis_no }}</code></td>
+                <td>{{ s.tarih.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ s.lokasyon.ad }}</td>
+                <td>{{ s.kasiyer.ad_soyad }}</td>
+                <td>{{ s.musteri.ad_soyad if s.musteri else '-' }}</td>
+                <td><span class="badge bg-{{ 'success' if s.odeme_tipi == 'nakit' else 'primary' if s.odeme_tipi == 'kart' else 'warning' }}">{{ s.odeme_tipi }}</span></td>
+                <td class="text-end fw-bold">₺{{ '{:,.2f}'.format(s.net_tutar) }}</td>
+                <td>{{ '<span class=\"badge bg-danger\">İPTAL</span>' | safe if s.iptal else '<span class=\"badge bg-success\">OK</span>' | safe }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

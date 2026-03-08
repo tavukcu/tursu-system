@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Üretim Detay{% endblock %}
+{% block page_title %}<strong>Üretim Emri: {{ emir.lot_no }}</strong>{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <!-- Genel Bilgiler -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Genel Bilgiler</strong></div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr><th width="40%">Ürün</th><td>{{ emir.urun.ad }}</td></tr>
+                    <tr><th>Lot No</th><td><code>{{ emir.lot_no }}</code></td></tr>
+                    <tr><th>Lokasyon</th><td>{{ emir.lokasyon.ad }}</td></tr>
+                    <tr><th>Hedef Miktar</th><td>{{ emir.hedef_miktar }}</td></tr>
+                    <tr><th>Üretilen</th><td>{{ emir.uretilen_miktar }}</td></tr>
+                    <tr><th>Durum</th><td>
+                        {% if emir.durum == 'beklemede' %}<span class="badge bg-secondary">Beklemede</span>
+                        {% elif emir.durum == 'uretimde' %}<span class="badge bg-primary">Üretimde</span>
+                        {% elif emir.durum == 'tamamlandi' %}<span class="badge bg-success">Tamamlandı</span>
+                        {% elif emir.durum == 'iptal' %}<span class="badge bg-danger">İptal</span>{% endif %}
+                    </td></tr>
+                    <tr><th>Üretim Tarihi</th><td>{{ emir.uretim_tarihi.strftime('%d/%m/%Y') if emir.uretim_tarihi else '-' }}</td></tr>
+                    <tr><th>SKT</th><td>{{ emir.skt.strftime('%d/%m/%Y') if emir.skt else '-' }}</td></tr>
+                    <tr><th>Başlama</th><td>{{ emir.baslama_zamani.strftime('%d/%m/%Y %H:%M') if emir.baslama_zamani else '-' }}</td></tr>
+                    <tr><th>Bitiş</th><td>{{ emir.bitis_zamani.strftime('%d/%m/%Y %H:%M') if emir.bitis_zamani else '-' }}</td></tr>
+                </table>
+
+                {% if emir.durum == 'beklemede' %}
+                <form method="POST" action="{{ url_for('uretim_baslat', id=emir.id) }}">
+                    <button class="btn btn-primary w-100"><i class="bi bi-play-fill"></i> Üretimi Başlat</button>
+                </form>
+                {% elif emir.durum == 'uretimde' %}
+                <form method="POST" action="{{ url_for('uretim_tamamla', id=emir.id) }}" class="mt-2">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Üretilen Miktar</span>
+                        <input type="number" name="uretilen_miktar" class="form-control" value="{{ emir.hedef_miktar }}" step="1">
+                    </div>
+                    <button class="btn btn-success w-100"><i class="bi bi-check-circle"></i> Üretimi Tamamla</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Hammadde Girdileri -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Hammadde Kullanımı</strong></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Hammadde</th><th class="text-end">Planlanan</th><th class="text-end">Kullanılan</th></tr></thead>
+                    <tbody>
+                    {% for g in emir.girdiler %}
+                    <tr>
+                        <td>{{ g.hammadde.ad }}</td>
+                        <td class="text-end">{{ g.planlanan_miktar }} {{ g.hammadde.birim }}</td>
+                        <td class="text-end">{{ g.kullanilan_miktar }} {{ g.hammadde.birim }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Kalite Kontrol -->
+        <div class="card border-0 shadow-sm mt-3">
+            <div class="card-header bg-white"><strong>Kalite Kontrol</strong></div>
+            <div class="card-body">
+                {% for kk in emir.kalite_kontroller %}
+                <div class="border rounded p-2 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">{{ kk.kontrol_tarihi.strftime('%d/%m/%Y %H:%M') }} - {{ kk.kontrol_eden }}</small>
+                        {% if kk.sonuc == 'gecti' %}<span class="badge bg-success">Geçti</span>
+                        {% elif kk.sonuc == 'kaldi' %}<span class="badge bg-danger">Kaldı</span>
+                        {% else %}<span class="badge bg-secondary">Beklemede</span>{% endif %}
+                    </div>
+                    <small>pH: {{ kk.ph_degeri or '-' }} | Tuz: {{ kk.tuz_orani or '-' }}% | Görünüm: {{ kk.gorunum or '-' }} | Tat: {{ kk.tat or '-' }}</small>
+                    {% if kk.notlar %}<br><small class="text-muted">{{ kk.notlar }}</small>{% endif %}
+                </div>
+                {% endfor %}
+
+                {% if emir.durum in ['uretimde', 'tamamlandi'] %}
+                <hr>
+                <h6>Yeni Kalite Kontrol</h6>
+                <form method="POST" action="{{ url_for('kalite_kontrol_ekle', id=emir.id) }}">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="number" name="ph_degeri" class="form-control form-control-sm" placeholder="pH Değeri" step="0.1">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" name="tuz_orani" class="form-control form-control-sm" placeholder="Tuz Oranı %" step="0.1">
+                        </div>
+                        <div class="col-6">
+                            <select name="gorunum" class="form-select form-select-sm">
+                                <option value="">Görünüm...</option>
+                                <option value="iyi">İyi</option>
+                                <option value="orta">Orta</option>
+                                <option value="kotu">Kötü</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <select name="tat" class="form-select form-select-sm">
+                                <option value="">Tat...</option>
+                                <option value="iyi">İyi</option>
+                                <option value="orta">Orta</option>
+                                <option value="kotu">Kötü</option>
+                            </select>
+                        </div>
+                        <div class="col-8">
+                            <select name="sonuc" class="form-select form-select-sm">
+                                <option value="gecti">Geçti</option>
+                                <option value="kaldi">Kaldı</option>
+                                <option value="beklemede">Beklemede</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-sm btn-primary w-100">Kaydet</button>
+                        </div>
+                        <div class="col-12">
+                            <textarea name="notlar" class="form-control form-control-sm" placeholder="Notlar..." rows="1"></textarea>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

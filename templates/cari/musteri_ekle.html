@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Müşteri Ekle{% endblock %}
+{% block page_title %}<strong>Yeni Müşteri Ekle</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:600px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Ad Soyad *</label>
+                <input type="text" name="ad_soyad" class="form-control" required>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Firma Adı</label>
+                    <input type="text" name="firma_adi" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tip</label>
+                    <select name="tip" class="form-select">
+                        <option value="perakende">Perakende</option>
+                        <option value="toptan">Toptan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Telefon</label>
+                    <input type="text" name="telefon" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">TC No</label>
+                    <input type="text" name="tc_no" class="form-control" maxlength="11">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Vergi No</label>
+                <input type="text" name="vergi_no" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Adres</label>
+                <textarea name="adres" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Kaydet</button>
+                <a href="{{ url_for('musteri_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

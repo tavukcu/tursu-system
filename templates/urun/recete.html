@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Reçete - {{ urun.ad }}{% endblock %}
+{% block page_title %}<strong>Reçete: {{ urun.ad }}</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:800px">
+    <div class="card-body">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 1 adet <strong>{{ urun.ad }}</strong> üretmek için gereken hammadde miktarlarını girin.
+        </div>
+        <form method="POST">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Üretim Süresi (dk)</label>
+                    <input type="number" name="uretim_suresi_dk" class="form-control" value="{{ recete.uretim_suresi_dk if recete else '' }}">
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Açıklama</label>
+                    <input type="text" name="aciklama" class="form-control" value="{{ recete.aciklama if recete else '' }}">
+                </div>
+            </div>
+
+            <h6>Hammadde Kalemleri</h6>
+            <table class="table" id="receteTable">
+                <thead><tr><th>Hammadde</th><th>Miktar</th><th></th></tr></thead>
+                <tbody>
+                {% if recete %}
+                {% for kalem in recete.kalemleri %}
+                <tr>
+                    <td>
+                        <select name="hammadde_id[]" class="form-select" required>
+                            <option value="">Seçiniz...</option>
+                            {% for h in hammaddeler %}
+                            <option value="{{ h.id }}" {{ 'selected' if h.id == kalem.hammadde_id }}>{{ h.ad }} ({{ h.birim }})</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" name="miktar[]" class="form-control" step="0.001" value="{{ kalem.miktar }}" required></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td>
+                        <select name="hammadde_id[]" class="form-select" required>
+                            <option value="">Seçiniz...</option>
+                            {% for h in hammaddeler %}
+                            <option value="{{ h.id }}">{{ h.ad }} ({{ h.birim }})</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" name="miktar[]" class="form-control" step="0.001" required></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-primary mb-3" onclick="satirEkle()">
+                <i class="bi bi-plus"></i> Satır Ekle
+            </button>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Reçeteyi Kaydet</button>
+                <a href="{{ url_for('urun_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function satirEkle() {
+    const tbody = document.querySelector('#receteTable tbody');
+    const row = tbody.querySelector('tr').cloneNode(true);
+    row.querySelectorAll('input').forEach(i => i.value = '');
+    row.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+    tbody.appendChild(row);
+}
+</script>
+{% endblock %}

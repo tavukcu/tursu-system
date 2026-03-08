@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Lokasyon Ekle{% endblock %}
+{% block page_title %}<strong>Yeni Lokasyon Ekle</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:500px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Lokasyon Adı *</label>
+                <input type="text" name="ad" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Tip *</label>
+                <select name="tip" class="form-select" required>
+                    <option value="fabrika">Fabrika</option>
+                    <option value="magaza">Mağaza</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Adres</label>
+                <textarea name="adres" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Telefon</label>
+                <input type="text" name="telefon" class="form-control">
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Kaydet</button>
+                <a href="{{ url_for('lokasyon_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Ürün Ekle{% endblock %}
+{% block page_title %}<strong>Yeni Ürün Ekle</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Ürün Adı *</label>
+                <input type="text" name="ad" class="form-control" required>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Barkod</label>
+                    <input type="text" name="barkod" class="form-control">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="kategori" class="form-select">
+                        <option value="tursu">Turşu</option>
+                        <option value="konserve">Konserve</option>
+                        <option value="sos">Sos</option>
+                        <option value="diger">Diğer</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Birim</label>
+                    <select name="birim" class="form-select">
+                        <option value="adet">Adet</option>
+                        <option value="kg">Kg</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Ambalaj Tipi</label>
+                    <select name="ambalaj_tipi" class="form-select">
+                        <option value="kavanoz_370ml">Kavanoz 370ml</option>
+                        <option value="kavanoz_720ml">Kavanoz 720ml</option>
+                        <option value="kavanoz_1L">Kavanoz 1L</option>
+                        <option value="kova_3kg">Kova 3kg</option>
+                        <option value="kova_5kg">Kova 5kg</option>
+                        <option value="kova_10kg">Kova 10kg</option>
+                        <option value="bidon_18L">Bidon 18L</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Raf Ömrü (gün)</label>
+                    <input type="number" name="raf_omru_gun" class="form-control" value="365">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">KDV Oranı (%)</label>
+                    <input type="number" name="kdv_orani" class="form-control" value="10" step="0.01">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Perakende Fiyat (₺)</label>
+                    <input type="number" name="perakende_fiyat" class="form-control" step="0.01">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Toptan Fiyat (₺)</label>
+                    <input type="number" name="toptan_fiyat" class="form-control" step="0.01">
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Kaydet</button>
+                <a href="{{ url_for('urun_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

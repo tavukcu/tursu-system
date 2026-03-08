@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Cari Rapor{% endblock %}
+{% block page_title %}<strong>Cari Hesap Raporu</strong>{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong><i class="bi bi-person-lines-fill text-danger"></i> Müşteri Bakiyeleri (Alacaklarımız)</strong></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Müşteri</th><th>Tip</th><th class="text-end">Bakiye</th></tr></thead>
+                    <tbody>
+                    {% set toplam_alacak = namespace(val=0) %}
+                    {% for m in musteriler %}
+                    <tr>
+                        <td>{{ m.ad_soyad }}</td>
+                        <td><span class="badge bg-{{ 'info' if m.tip == 'toptan' else 'secondary' }}">{{ m.tip }}</span></td>
+                        <td class="text-end text-danger fw-bold">₺{{ '{:,.2f}'.format(m.bakiye) }}</td>
+                    </tr>
+                    {% set toplam_alacak.val = toplam_alacak.val + m.bakiye %}
+                    {% endfor %}
+                    <tr class="table-danger">
+                        <td colspan="2"><strong>TOPLAM ALACAK</strong></td>
+                        <td class="text-end"><strong>₺{{ '{:,.2f}'.format(toplam_alacak.val) }}</strong></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong><i class="bi bi-people text-primary"></i> Tedarikçi Bakiyeleri (Borçlarımız)</strong></div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead><tr><th>Tedarikçi</th><th class="text-end">Bakiye</th></tr></thead>
+                    <tbody>
+                    {% set toplam_borc = namespace(val=0) %}
+                    {% for t in tedarikciler %}
+                    <tr>
+                        <td>{{ t.ad_soyad }}</td>
+                        <td class="text-end text-primary fw-bold">₺{{ '{:,.2f}'.format(t.bakiye) }}</td>
+                    </tr>
+                    {% set toplam_borc.val = toplam_borc.val + t.bakiye %}
+                    {% endfor %}
+                    <tr class="table-primary">
+                        <td><strong>TOPLAM BORÇ</strong></td>
+                        <td class="text-end"><strong>₺{{ '{:,.2f}'.format(toplam_borc.val) }}</strong></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

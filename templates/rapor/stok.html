@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Stok Raporu{% endblock %}
+{% block page_title %}<strong>Stok Raporu</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+        <form method="GET" class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label">Lokasyon</label>
+                <select name="lokasyon_id" class="form-select">
+                    <option value="">Tümü</option>
+                    {% for l in lokasyonlar %}<option value="{{ l.id }}">{{ l.ad }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Filtrele</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Ürün</th><th>Lokasyon</th><th>Lot No</th><th class="text-end">Miktar</th><th>SKT</th></tr>
+            </thead>
+            <tbody>
+            {% for u, s, l in stoklar %}
+            <tr>
+                <td><strong>{{ u.ad }}</strong></td>
+                <td>{{ l.ad }}</td>
+                <td><code>{{ s.lot_no or '-' }}</code></td>
+                <td class="text-end fw-bold">{{ s.miktar }}</td>
+                <td>{{ s.skt.strftime('%d/%m/%Y') if s.skt else '-' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

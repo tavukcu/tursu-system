@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Hammadde Alımı{% endblock %}
+{% block page_title %}<strong>Hammadde Alımı</strong>{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="max-width:700px">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Tedarikçi (Çiftçi) *</label>
+                <select name="tedarikci_id" class="form-select" required>
+                    <option value="">Seçiniz...</option>
+                    {% for t in tedarikciler %}
+                    <option value="{{ t.id }}">{{ t.ad_soyad }} {% if t.firma_adi %}({{ t.firma_adi }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Hammadde *</label>
+                    <select name="hammadde_id" class="form-select" required>
+                        <option value="">Seçiniz...</option>
+                        {% for h in hammaddeler %}
+                        <option value="{{ h.id }}">{{ h.ad }} ({{ h.birim }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Lokasyon *</label>
+                    <select name="lokasyon_id" class="form-select" required>
+                        {% for l in lokasyonlar %}
+                        <option value="{{ l.id }}">{{ l.ad }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Miktar *</label>
+                    <input type="number" name="miktar" id="miktar" class="form-control" step="0.01" required onchange="hesapla()">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Birim Fiyat (₺) *</label>
+                    <input type="number" name="birim_fiyat" id="birim_fiyat" class="form-control" step="0.01" required onchange="hesapla()">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Toplam Tutar</label>
+                    <input type="text" id="toplam" class="form-control bg-light" readonly>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Açıklama</label>
+                <textarea name="aciklama" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> Alımı Kaydet</button>
+                <a href="{{ url_for('hammadde_listesi') }}" class="btn btn-secondary">İptal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function hesapla() {
+    const m = parseFloat(document.getElementById('miktar').value) || 0;
+    const f = parseFloat(document.getElementById('birim_fiyat').value) || 0;
+    document.getElementById('toplam').value = '₺' + (m * f).toLocaleString('tr-TR', {minimumFractionDigits:2});
+}
+</script>
+{% endblock %}

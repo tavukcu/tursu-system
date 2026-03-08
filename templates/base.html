@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Turşu Fabrikası{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar bg-dark text-white" id="sidebar">
+            <div class="sidebar-header p-3 border-bottom border-secondary">
+                <h5 class="mb-0"><i class="bi bi-building-fill"></i> Turşu Fabrikası</h5>
+                <small class="text-muted">Yönetim Sistemi</small>
+            </div>
+            <nav class="nav flex-column p-2">
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'dashboard' }}" href="{{ url_for('dashboard') }}">
+                    <i class="bi bi-speedometer2"></i> Ana Panel
+                </a>
+
+                <div class="nav-section mt-2 mb-1 px-3"><small class="text-uppercase text-muted">Tedarik & Üretim</small></div>
+                <a class="nav-link text-white {{ 'active' if 'tedarikci' in request.endpoint|default('') }}" href="{{ url_for('tedarikci_listesi') }}">
+                    <i class="bi bi-people"></i> Tedarikçiler
+                </a>
+                <a class="nav-link text-white {{ 'active' if 'hammadde' in request.endpoint|default('') }}" href="{{ url_for('hammadde_listesi') }}">
+                    <i class="bi bi-box-seam"></i> Hammadde
+                </a>
+                <a class="nav-link text-white {{ 'active' if 'uretim' in request.endpoint|default('') }}" href="{{ url_for('uretim_listesi') }}">
+                    <i class="bi bi-gear-wide-connected"></i> Üretim
+                </a>
+
+                <div class="nav-section mt-2 mb-1 px-3"><small class="text-uppercase text-muted">Ürün & Stok</small></div>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'urun_listesi' }}" href="{{ url_for('urun_listesi') }}">
+                    <i class="bi bi-tag"></i> Ürünler
+                </a>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'stok_listesi' }}" href="{{ url_for('stok_listesi') }}">
+                    <i class="bi bi-archive"></i> Stok
+                </a>
+                <a class="nav-link text-white {{ 'active' if 'transfer' in request.endpoint|default('') }}" href="{{ url_for('stok_transfer_listesi') }}">
+                    <i class="bi bi-arrow-left-right"></i> Transferler
+                </a>
+
+                <div class="nav-section mt-2 mb-1 px-3"><small class="text-uppercase text-muted">Satış</small></div>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'satis_ekrani' }}" href="{{ url_for('satis_ekrani') }}">
+                    <i class="bi bi-cart3"></i> POS Satış
+                </a>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'satis_gecmis' }}" href="{{ url_for('satis_gecmis') }}">
+                    <i class="bi bi-receipt"></i> Satış Geçmişi
+                </a>
+
+                <div class="nav-section mt-2 mb-1 px-3"><small class="text-uppercase text-muted">Finans</small></div>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'musteri_listesi' }}" href="{{ url_for('musteri_listesi') }}">
+                    <i class="bi bi-person-lines-fill"></i> Müşteriler
+                </a>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'fatura_listesi' }}" href="{{ url_for('fatura_listesi') }}">
+                    <i class="bi bi-file-earmark-text"></i> Faturalar
+                </a>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'irsaliye_listesi' }}" href="{{ url_for('irsaliye_listesi') }}">
+                    <i class="bi bi-truck"></i> İrsaliyeler
+                </a>
+
+                <div class="nav-section mt-2 mb-1 px-3"><small class="text-uppercase text-muted">Raporlar</small></div>
+                <a class="nav-link text-white {{ 'active' if 'rapor' in request.endpoint|default('') }}" href="{{ url_for('rapor_ana') }}">
+                    <i class="bi bi-graph-up"></i> Raporlar
+                </a>
+
+                {% if current_user.rol == 'admin' %}
+                <div class="nav-section mt-2 mb-1 px-3"><small class="text-uppercase text-muted">Yönetim</small></div>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'kullanici_listesi' }}" href="{{ url_for('kullanici_listesi') }}">
+                    <i class="bi bi-person-gear"></i> Kullanıcılar
+                </a>
+                <a class="nav-link text-white {{ 'active' if request.endpoint == 'lokasyon_listesi' }}" href="{{ url_for('lokasyon_listesi') }}">
+                    <i class="bi bi-geo-alt"></i> Lokasyonlar
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content flex-grow-1">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3">
+                <button class="btn btn-sm btn-outline-secondary me-3" id="toggleSidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <span class="navbar-text me-auto">
+                    {% block page_title %}{% endblock %}
+                </span>
+                <div class="d-flex align-items-center">
+                    <span class="me-3"><i class="bi bi-person-circle"></i> {{ current_user.ad_soyad }}</span>
+                    <span class="badge bg-info me-3">{{ current_user.rol|upper }}</span>
+                    {% if current_user.lokasyon %}
+                    <span class="badge bg-secondary me-3">{{ current_user.lokasyon.ad }}</span>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-box-arrow-right"></i> Çıkış
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Flash Messages -->
+            <div class="container-fluid px-4 pt-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="container-fluid px-4 py-3">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
